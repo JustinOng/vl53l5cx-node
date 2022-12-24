@@ -2,6 +2,7 @@
 #include <AsyncElegantOTA.h>
 #include <ESPAsyncWebServer.h>
 #include <ESPmDNS.h>
+#include <Preferences.h>
 
 #include "Sensor.hpp"
 #include "Update.h"  // Somehow fixes failure to find "Update.h" in AsyncElegantOTA
@@ -26,6 +27,10 @@ struct {
 } sensor_data;
 
 packet_status sensor_status = initialising;
+
+uint8_t node_id = 0;
+
+Preferences prefs;
 
 void uart_task(void *arg) {
   QueueHandle_t uart_queue;
@@ -70,8 +75,7 @@ void uart_task(void *arg) {
           continue;
         }
 
-        // HARDCODED FOR TESTING
-        if (pkt->destination != 0x10) {
+        if (pkt->destination != node_id) {
           continue;
         }
 
@@ -128,6 +132,11 @@ void setup() {
   Serial.begin(115200);
   Wire.begin(PIN_SDA, PIN_SCL, 400000);
 
+  prefs.begin("prefs", false);
+  node_id = prefs.getUChar("id", 0);
+
+  ESP_LOGI(TAG, "id=%d", node_id);
+
   xTaskCreate(uart_task, "uart", 8192, nullptr, 10, nullptr);
   xTaskCreate(sensor_task, "sensor", 8192, nullptr, 15, nullptr);
 
@@ -176,4 +185,25 @@ void setup() {
 }
 
 void loop() {
+  constexpr int LEN_BUF = 64;
+  static char buf[LEN_BUF];
+  static uint8_t buf_count = 0;
+
+  while (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == '\n' || c == '\r') {
+      buf[buf_count] = '\0';
+      int id;
+      if (sscanf(buf, "id=%d", &id) == 1) {
+        prefs.putUChar("id", id);
+        node_id = id;
+        ESP_LOGI(TAG, "set id=%d", id);
+      }
+
+      buf_count = 0;
+    } else {
+      buf[buf_count++] = c;
+    }
+  }
 }
