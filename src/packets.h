@@ -24,6 +24,7 @@ typedef struct __attribute__((packed)) {
 } packet_status_t;
 
 typedef struct __attribute__((packed)) {
+  uint8_t status;
   uint8_t target_status[64];
   uint16_t distances[64];
 } packet_data_t;

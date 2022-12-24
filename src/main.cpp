@@ -94,6 +94,7 @@ void uart_task(void *arg) {
             pktr.destination = 0xFF;
             pktr.type = data;
 
+            pktr.data.status = sensor_status;
             memcpy(&pktr.data.target_status, &sensor_data.target_status, sizeof(sensor_data.target_status));
             memcpy(&pktr.data.distances, &sensor_data.distance, sizeof(sensor_data.distance));
 
