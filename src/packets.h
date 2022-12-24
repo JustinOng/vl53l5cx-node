@@ -12,7 +12,8 @@ enum packet_type {
 enum packet_status {
   initialising = 1,
   initialising_failure,
-  active
+  active,
+  timeout
 };
 
 typedef struct __attribute__((packed)) {
