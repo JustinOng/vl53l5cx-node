@@ -114,10 +114,21 @@ void uart_task(void *arg) {
 }
 
 void sensor_task(void *arg) {
+  pinMode(PIN_I2C_RST, OUTPUT);
   sensor_status = initialising;
-  if (Sensor::initialize() != 0) {
-    sensor_status = initialising_failure;
-    vTaskDelete(nullptr);
+
+  while (1) {
+    digitalWrite(PIN_I2C_RST, HIGH);
+    delay(50);
+    digitalWrite(PIN_I2C_RST, LOW);
+    delay(50);
+
+    if (Sensor::initialize() != 0) {
+      sensor_status = initialising_failure;
+      delay(500);
+    } else {
+      break;
+    }
   }
 
   sensor_status = active;
