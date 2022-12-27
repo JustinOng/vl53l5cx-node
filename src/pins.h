@@ -1,9 +1,7 @@
 #ifndef PINS_H
 #define PINS_H
 
-constexpr int PIN_INT = 39;
-constexpr int PIN_SDA = 40;
-constexpr int PIN_SCL = 41;
+constexpr int PIN_LED = 45;
 
 constexpr int PIN_TXD = 1;
 constexpr int PIN_RXD = 2;

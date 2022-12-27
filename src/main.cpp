@@ -128,6 +128,25 @@ void sensor_task(void *arg) {
   }
 }
 
+void led_task(void *arg) {
+  pinMode(PIN_LED, OUTPUT);
+  int state = 0;
+  while (1) {
+    digitalWrite(PIN_LED, state);
+
+    if (sensor_status == initialising) {
+      delay(500);
+    } else if (sensor_status == initialising_failure) {
+      delay(100);
+    } else {
+      digitalWrite(PIN_LED, HIGH);
+      vTaskDelete(nullptr);
+    }
+
+    state = !state;
+  }
+}
+
 void setup() {
   Serial.begin(115200);
   Wire.begin(PIN_SDA, PIN_SCL, 400000);
@@ -139,6 +158,7 @@ void setup() {
 
   xTaskCreate(uart_task, "uart", 8192, nullptr, 10, nullptr);
   xTaskCreate(sensor_task, "sensor", 8192, nullptr, 15, nullptr);
+  xTaskCreate(led_task, "led", 8192, nullptr, 5, nullptr);
 
   WiFi.mode(WIFI_STA);
   ESP_LOGI(TAG, "Trying to connect to %s...", WIFI_SSID);
