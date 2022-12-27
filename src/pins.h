@@ -3,8 +3,13 @@
 
 constexpr int PIN_LED = 45;
 
-constexpr int PIN_TXD = 1;
-constexpr int PIN_RXD = 2;
+constexpr int PIN_INT = 4;
+constexpr int PIN_I2C_RST = 3;
+constexpr int PIN_SDA = 2;
+constexpr int PIN_SCL = 1;
+
+constexpr int PIN_TXD = 8;
+constexpr int PIN_RXD = 7;
 
 constexpr int UART_NUM = 1;
 constexpr int UART_BAUD = 115200;
