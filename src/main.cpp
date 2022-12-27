@@ -16,8 +16,8 @@
 
 const char *TAG = "main";
 
-const char *WIFI_AP_SSID = "imager";
-const char *WIFI_AP_PASSWORD = "slug stupor retool";
+const char *WIFI_AP_SSID = "sensor";
+const char *WIFI_AP_PASSWORD = "absolutely";
 
 AsyncWebServer server(80);
 
@@ -67,7 +67,7 @@ void uart_task(void *arg) {
         }
 
         uart_read_bytes(UART_NUM, buf, pos + UART_RX_PAT_COUNT, 0);
-        ESP_LOGI(TAG, "read %d bytes", pos);
+        // ESP_LOGI(TAG, "read %d bytes", pos);
 
         pkt = (packet_t *)buf;
         if (pkt->header != PACKET_HEADER) {
@@ -75,7 +75,7 @@ void uart_task(void *arg) {
           continue;
         }
 
-        if (pkt->destination != node_id) {
+        if (pkt->destination != 10 + node_id) {
           continue;
         }
 
@@ -83,7 +83,7 @@ void uart_task(void *arg) {
           continue;
         }
 
-        ESP_LOGI(TAG, "read request received: %d", pkt->request.type);
+        // ESP_LOGI(TAG, "read request received: %d", pkt->request.type);
 
         switch (pkt->request.type) {
           case status:
@@ -186,13 +186,18 @@ void setup() {
 
   if (WiFi.waitForConnectResult() != WL_CONNECTED) {
     ESP_LOGW(TAG, "WiFi connection failed!");
-    ESP_LOGI(TAG, "Starting AP %s", WIFI_AP_SSID);
-    WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD);
+    WiFi.disconnect();
+
+    char ssid[32];
+    snprintf(ssid, sizeof(ssid), "%s%d", WIFI_AP_SSID, node_id);
+
+    ESP_LOGI(TAG, "Starting AP %s", ssid);
+    WiFi.softAP(ssid, WIFI_AP_PASSWORD);
+  } else {
+    ESP_LOGI(TAG, "IP: %s", WiFi.localIP().toString());
   }
 
-  MDNS.begin("imager");
-
-  ESP_LOGI(TAG, "IP: %s", WiFi.localIP().toString());
+  MDNS.begin("sensor");
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", index_html);
