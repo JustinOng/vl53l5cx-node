@@ -129,17 +129,26 @@ void sensor_task(void *arg) {
 }
 
 void led_task(void *arg) {
-  pinMode(PIN_LED, OUTPUT);
+  constexpr int LEDC_CHANNEL = 0;
+  constexpr int LEDC_FREQ = 1000;
+  constexpr int LEDC_RESOLUTION = 8;
+  ledcSetup(LEDC_CHANNEL, LEDC_FREQ, LEDC_RESOLUTION);
+  ledcAttachPin(PIN_LED, LEDC_CHANNEL);
+
   int state = 0;
   while (1) {
-    digitalWrite(PIN_LED, state);
+    if (state) {
+      ledcWrite(LEDC_CHANNEL, 255);
+    } else {
+      ledcWrite(LEDC_CHANNEL, 0);
+    }
 
     if (sensor_status == initialising) {
       delay(500);
     } else if (sensor_status == initialising_failure) {
       delay(100);
     } else {
-      digitalWrite(PIN_LED, HIGH);
+      ledcWrite(LEDC_CHANNEL, 4);
       vTaskDelete(nullptr);
     }
 
