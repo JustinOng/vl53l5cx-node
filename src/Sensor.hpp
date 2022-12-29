@@ -20,7 +20,7 @@ int8_t initialize() {
   ESP_LOGI(TAG, "Init ok");
 
   imager.setResolution(IMAGE_WIDTH * IMAGE_WIDTH);
-  imager.setRangingFrequency(5);
+  imager.setRangingFrequency(15);
 
   // Set the ranging mode
   if (imager.setRangingMode(SF_VL53L5CX_RANGING_MODE::CONTINUOUS)) {
