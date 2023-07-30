@@ -6,13 +6,17 @@
 
 #include "Sensor.hpp"
 #include "Update.h"  // Somehow fixes failure to find "Update.h" in AsyncElegantOTA
-#include "credentials.h"
 #include "driver/uart.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "index_html.h"
 #include "packets.h"
 #include "pins.h"
+
+// #define WIFI_EN
+#ifdef WIFI_EN
+#include "credentials.h"
+#endif
 
 const char *TAG = "main";
 
@@ -180,6 +184,7 @@ void setup() {
   xTaskCreate(sensor_task, "sensor", 8192, nullptr, 15, nullptr);
   xTaskCreate(led_task, "led", 8192, nullptr, 5, nullptr);
 
+#ifdef WIFI_EN
   WiFi.mode(WIFI_STA);
   ESP_LOGI(TAG, "Trying to connect to %s...", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -227,6 +232,7 @@ void setup() {
 
   AsyncElegantOTA.begin(&server);
   server.begin();
+#endif
 }
 
 void loop() {
